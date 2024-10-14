@@ -6,9 +6,7 @@ LeetLog contains a collection of the most recent LeetCode problems, intended **s
 
 The main dataset is stored in `problemset.jsonl`, a JSON Lines file where each line represents a single LeetCode problem.
 
-For easier reading, individual problem statements are also available as markdown files in the [`leetcode_problems`](./leetcode_problems) directory.
-
-A web application is also provided to browse and view the problems interactively. For more details on using the app, see the [Web Application](#web-application) section.
+> For easier reading, individual problem statements are also available as markdown files in the [`leetcode_problems`](./leetcode_problems) directory. A web application is also provided to browse and view the problems interactively. For more details on using the app, see the [Web Application](#web-application) section.
 
 ### ⏳ Time Coverage
 
