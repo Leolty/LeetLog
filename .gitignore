@@ -1,0 +1,9 @@
+
+# directories to crawl leetcode problems
+leetcode-problems-crawler/
+
+# directiories to save unprocessed leetcode problems
+raw-problemset/
+
+# script to crawl leetcode problems
+script/
