@@ -1,4 +1,4 @@
-# LeetLog
+# 💻 LeetLog
 
 LeetLog contains a collection of the most recent LeetCode problems, intended **solely for research and educational purposes**. This dataset includes problems posted after May 2024.
 
