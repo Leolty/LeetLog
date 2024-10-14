@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode Problem Display</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .range-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: #d3d3d3;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #4F46E5;
+            cursor: pointer;
+        }
+        .range-slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #4F46E5;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen text-base">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-center mb-8 text-indigo-700">LeetCode Problem Explorer</h1>
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <div class="mb-4">
+                <label for="problem_input" class="text-lg font-semibold mb-2 block text-gray-700">Enter Problem Number:</label>
+                <div class="flex space-x-2">
+                    <input type="number" id="problem_input" name="problem_input" min="{{ min_number }}" max="{{ max_number }}"
+                           class="flex-grow px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <button id="input-btn" 
+                            class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-300 ease-in-out">
+                        Go
+                    </button>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label for="problem_number" class="text-lg font-semibold mb-2 block text-gray-700">Or Select Problem Number:</label>
+                <input type="range" id="problem_number" name="problem_number" min="{{ min_number }}" max="{{ max_number }}" value="{{ min_number }}"
+                       class="range-slider mb-2">
+                <div class="flex justify-between text-sm text-gray-600">
+                    <span>{{ min_number }}</span>
+                    <span id="current_number">{{ min_number }}</span>
+                    <span>{{ max_number }}</span>
+                </div>
+            </div>
+        </div>
+        <div id="problem-display" class="bg-white rounded-xl shadow-lg p-6 hidden">
+            <h2 id="problem-title" class="text-3xl font-bold mb-4 text-indigo-700"></h2>
+            <div id="problem-info" class="bg-gray-100 p-4 rounded-xl mb-6 text-sm">
+                <p class="mb-1"><strong class="text-indigo-600">Difficulty:</strong> <span id="problem-difficulty" class="font-semibold"></span></p>
+                <p class="mb-1"><strong class="text-indigo-600">Link:</strong> <a id="problem-link" href="#" target="_blank" class="text-blue-600 hover:underline font-semibold">View on LeetCode</a></p>
+                <p class="mb-1"><strong class="text-indigo-600">Contains PNG:</strong> <span id="problem-contains-png" class="font-semibold"></span></p>
+                <div id="problem-png-links" class="hidden">
+                    <p class="mb-1"><strong class="text-indigo-600">PNG Links:</strong></p>
+                    <ul id="png-links-list" class="list-disc pl-5"></ul>
+                </div>
+            </div>
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold mb-2 text-indigo-600">Problem Statement</h3>
+                <div id="problem-statement" class="prose max-w-none text-sm"></div>
+            </div>
+            <div id="problem-hints" class="mb-6 hidden">
+                <h3 class="text-xl font-semibold mb-2 text-indigo-600">Hints</h3>
+                <div id="hints-list"></div>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold mb-2 text-indigo-600">Code Templates</h3>
+                <div id="code-templates"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const slider = document.getElementById('problem_number');
+        const input = document.getElementById('problem_input');
+        const currentNumber = document.getElementById('current_number');
+        const inputBtn = document.getElementById('input-btn');
+        const problemDisplay = document.getElementById('problem-display');
+        const availableNumbers = {{ available_numbers | tojson }};
+
+        slider.addEventListener('input', (e) => {
+            const nearestAvailable = findNearestAvailable(parseInt(e.target.value));
+            currentNumber.textContent = nearestAvailable;
+            slider.value = nearestAvailable;
+            input.value = nearestAvailable;
+            fetchAndDisplayProblem(nearestAvailable);
+        });
+
+        input.addEventListener('input', (e) => {
+            const nearestAvailable = findNearestAvailable(parseInt(e.target.value));
+            slider.value = nearestAvailable;
+            currentNumber.textContent = nearestAvailable;
+        });
+
+        function findNearestAvailable(num) {
+            return availableNumbers.reduce((prev, curr) => 
+                Math.abs(curr - num) < Math.abs(prev - num) ? curr : prev
+            );
+        }
+
+        function fetchAndDisplayProblem(problemNumber) {
+            fetch(`/problem/${problemNumber}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Problem not found');
+                    }
+                    return response.json();
+                })
+                .then(problem => {
+                    displayProblem(problem);
+                })
+                .catch(error => {
+                    alert(error.message);
+                });
+        }
+
+        inputBtn.addEventListener('click', () => {
+            fetchAndDisplayProblem(input.value);
+        });
+
+        function displayProblem(problem) {
+            document.getElementById('problem-title').textContent = `${problem.number}. ${problem.title}`;
+            document.getElementById('problem-difficulty').textContent = problem.difficulty;
+            document.getElementById('problem-link').href = problem.link;
+            document.getElementById('problem-contains-png').textContent = problem.contains_png ? 'Yes' : 'No';
+            
+            const pngLinksDiv = document.getElementById('problem-png-links');
+            const pngLinksList = document.getElementById('png-links-list');
+            pngLinksList.innerHTML = '';
+            if (problem.png_links && problem.png_links.length > 0) {
+                pngLinksDiv.classList.remove('hidden');
+                problem.png_links.forEach(link => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = link;
+                    a.textContent = link;
+                    a.target = '_blank';
+                    a.className = 'text-blue-600 hover:underline';
+                    li.appendChild(a);
+                    pngLinksList.appendChild(li);
+                });
+            } else {
+                pngLinksDiv.classList.add('hidden');
+            }
+
+            document.getElementById('problem-statement').innerHTML = problem.statement;
+
+            const hintsDiv = document.getElementById('problem-hints');
+            const hintsList = document.getElementById('hints-list');
+            hintsList.innerHTML = '';
+            if (problem.hints) {
+                hintsDiv.classList.remove('hidden');
+                problem.hints.split('\n').forEach(hint => {
+                    const hintDiv = document.createElement('div');
+                    hintDiv.className = 'bg-yellow-100 p-3 rounded-lg mb-2 shadow text-sm';
+                    hintDiv.textContent = hint.trim();
+                    hintsList.appendChild(hintDiv);
+                });
+            } else {
+                hintsDiv.classList.add('hidden');
+            }
+
+            const codeTemplates = document.getElementById('code-templates');
+            codeTemplates.innerHTML = '';
+            for (const [lang, template] of Object.entries(problem.templates)) {
+                const langDiv = document.createElement('div');
+                langDiv.className = 'mb-4';
+                langDiv.innerHTML = `
+                    <h4 class="text-lg font-semibold mb-2 text-gray-700">${lang.charAt(0).toUpperCase() + lang.slice(1)}</h4>
+                    <pre><code class="language-${lang} rounded-lg text-sm">${template}</code></pre>
+                `;
+                codeTemplates.appendChild(langDiv);
+            }
+
+            problemDisplay.classList.remove('hidden');
+            hljs.highlightAll();
+        }
+
+        // Initially load the first problem
+        fetchAndDisplayProblem({{ min_number }});
+    </script>
+</body>
+</html>
