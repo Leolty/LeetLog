@@ -6,6 +6,10 @@ LeetLog contains a collection of the most recent LeetCode problems, intended **s
 
 The main dataset is stored in `problemset.jsonl`, a JSON Lines file where each line represents a single LeetCode problem.
 
+For easier reading, individual problem statements are also available as markdown files in the [`leetcode_problems`](./leetcode_problems) directory.
+
+A web application is also provided to browse and view the problems interactively. For more details on using the app, see the [Web Application](#web-application) section.
+
 ### ⏳ Time Coverage
 
 The dataset includes problems posted after May 2024. Please note that exact posting times are not included, as they are unavailable. If you need to filter problems based on a specific time cutoff, you may estimate the posting time by visiting the corresponding LeetCode problem page and checking the timestamp of the most recent discussion.
@@ -61,6 +65,30 @@ python process.py [--raw_problemset_dir DIR] [--output_file FILE] [--force_proce
 - `--raw_problemset_dir`: Directory containing raw problem data (default: "./raw-problemset")
 - `--output_file`: Output file for processed problems (default: "./problemset.jsonl")
 - `--force_process`: Force processing of all problems, ignoring previously processed data.
+
+## 📘 Problem Display Scripts
+
+### Display LeetCode Problems
+
+This script processes the `problemset.jsonl` file and saves each problem as a separate Markdown file in a specified directory `./leetcode_problems`. This allows for easy reading and browsing of individual problems.
+
+Usage:
+```
+python display_leetcode_problems.py [--input_file FILE] [--output_dir DIR]
+```
+
+- `--input_file`: Input JSONL file (default: "./problemset.jsonl")
+- `--output_dir`: Output directory for Markdown files (default: "./leetcode_problems")
+
+### Web Application
+
+This is a Flask web application that provides a user-friendly interface for browsing and displaying LeetCode problems from the dataset.
+
+To run the web application:
+1. Clone the repository and `cd` into the repository directory.
+2. Install required packages: `pip install flask markdown`
+3. Run the script: `python app.py`
+4. Open a web browser and go to `http://localhost:5000`
 
 
 ## ⚖️ Disclaimer
